@@ -1,0 +1,29 @@
+<?php
+
+function pm_message_silent_block_install() {
+  if (!user_role_load_by_name('Silent PM Block'))
+  {
+    $role = new StdClass();
+    $role->name = 'Silent PM Block';
+    user_role_save($role);
+  }
+}
+
+function pm_message_silent_block_uninstall() {
+  user_role_delete('Silent PM Block');
+}
+
+function pm_message_silent_block_privatemsg_message_presave_alter(&$message) {
+  $role = user_role_load_by_name('Silent PM Block');
+  $author = user_load($message->author->uid);
+  if (user_has_role($role->rid, $author))
+  {
+    foreach ($message->recipients as $key => $recipieint)
+    {
+//      $message->recipients[$key]->type = 'bogus';
+      unset($message->recipients[$key]);
+    }
+  }
+}
+
+

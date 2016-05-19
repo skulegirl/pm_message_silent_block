@@ -1,0 +1,5 @@
+name = Private message silently block
+description = Allow private messages between users to be silently blocked
+package = Mail
+core = 7.x
+files[] = pm_message_silent_block.module
