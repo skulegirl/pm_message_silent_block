@@ -13,15 +13,50 @@ function pm_message_silent_block_uninstall() {
   user_role_delete('Silent PM Block');
 }
 
+function pm_message_silent_block_count_recipients($recipient) {
+  return 1;
+}
+
+function privatemsg_silent_block_load_multiple($uids, $type) {
+  return user_load_multiple($uids);
+}
+
+function privatemsg_silent_block_load_recipients($recipient, $limit, $offset) {
+  // Do not add any recipients - silent_block means don't send it!
+  return array();
+}
+
+function theme_privatemsg_silent_block_format($variables) {
+  $user = $variables['recipient'];
+  return $user->name;
+}
+
+function privatemsg_silent_block_autocomplete($fragment, $names, $limit, $type) {
+  return array();
+}
+
+function pm_message_silent_block_privatemsg_recipient_type_info() {
+  return array(
+    'silentblock' => array(
+      'name' => t('silentblock'),
+      'description' => t(''), // No public description
+      'load' => 'privatemsg_silent_block_load_multiple',
+      'format' => 'privatemsg_silent_block_format',
+      'autocomplete' => 'privatemsg_silent_block_autocomplete',
+      'generate recipients' => 'privatemsg_silent_block_load_recipients',
+      'count' => 'pm_message_silent_block_count_recipients',
+    ),
+  );
+}
+
 function pm_message_silent_block_privatemsg_message_presave_alter(&$message) {
   $role = user_role_load_by_name('Silent PM Block');
   $author = user_load($message->author->uid);
   if (user_has_role($role->rid, $author))
   {
-    foreach ($message->recipients as $key => $recipieint)
+    foreach ($message->recipients as $key => $recipient)
     {
-//      $message->recipients[$key]->type = 'bogus';
-      unset($message->recipients[$key]);
+      $message->recipients[$key]->type = 'silentblock';
     }
   }
 }
