@@ -52,8 +52,19 @@ function pm_message_silent_block_privatemsg_recipient_type_info() {
 function pm_message_silent_block_privatemsg_message_presave_alter(&$message) {
   $role = user_role_load_by_name('Silent PM Block');
   $author = user_load($message->author->uid);
+  $black_hole = false;
   if (user_has_role($role->rid, $author))
   {
+    $black_hole = true;
+    if ($message->reply_to_mid) {
+      $initial_message = privatemsg_message_load($message->thread_id);
+      if ($initial_message->author != $author) {
+        $black_hole = false;
+      }
+    }
+  }
+
+  if ($black_hole) {
     foreach ($message->recipients as $key => $recipient)
     {
       unset($message->recipients[$key]);
