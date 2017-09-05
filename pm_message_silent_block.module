@@ -56,9 +56,10 @@ function pm_message_silent_block_privatemsg_message_presave_alter(&$message) {
   {
     foreach ($message->recipients as $key => $recipient)
     {
-      $message->recipients[$key]->type = 'silentblock';
+      unset($message->recipients[$key]);
+      $newkey = 'silentblock_' . $recipient->uid;
+      $recipient->type = 'silentblock';
+      $message->recipients[$newkey] = $recipient;
     }
   }
 }
-
-
